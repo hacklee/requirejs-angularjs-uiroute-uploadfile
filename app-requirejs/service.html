@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>AngularJS 服务</title>
+        <link rel="stylesheet" href="styles/app.css">
+    </head>
+    <body ng-app="myApp">
+        <div class="container page-header">
+            <h1>AngularJS 服务</h1>
+        </div>
+        <div class="container" ng-controller="serviceCtrl">
+            <p class="muted lead">constant:{{constantVal}}</p>
+            <p class="text-warning lead">value:{{valueVal}}</p>
+            <p class="text-error lead">service:{{serviceVal}}</p>
+            <p class="text-info lead">factory:{{factoryVal}}</p>
+            <p class="text-success lead">provider:{{providerVal}}</p>
+            <p class="lead"><strong>decorator:{{decoratorVal}}</strong></p>
+        </div>
+    </body>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular-resource/angular-resource.js"></script>
+    <script type="text/javascript">
+        var myApp = angular.module('myApp',[]);
+
+        //注入一个常量,修改无效    
+        myApp.constant('domainConstant', 'http://demo.angular.com/');
+        //myApp.constant('domainConstant', 'http://demo1.angular.com/');
+
+        //注入一个数值,可以被修改
+        myApp.value('domainValue', 'http://demo.angular.com/');
+        //myApp.value('domainValue', 'http://demo1.angular.com/');
+
+        var myDomain = function(domainConstant){
+            this.domain =  domainConstant;
+        };k
+        //注入的时候，返回myDomain实例
+        myApp.service('domainService', myDomain );
+
+        //注入的时候,返回函数调用入口
+        myApp.factory('domainFactory', ['domainConstant', function(domain){
+            return {
+                getDomain : function(){
+                    return domain;
+                }
+            };
+        }]);
+
+        //注入的时候，返回$get实例
+        myApp.provider('domainProvider',function(domainConstant){
+            this.$get = function(){
+                return domainConstant;
+            }
+        });
+
+        //装饰service，接收一个service实例
+        myApp.config(function($provide){
+            $provide.decorator('domainService',function($delegate){
+                $delegate.getDomain = function(){
+                    return 'DecoratorDomain';
+                }
+                return $delegate;
+            });
+        });
+
+        myApp.controller('serviceCtrl', ['$scope','domainConstant','domainValue','domainService','domainFactory','domainProvider', function(scope,dcon,dval,dser,dfac,dpro){
+            scope.constantVal = dcon;
+            scope.valueVal = dval;
+            scope.serviceVal = dser.domain;
+            scope.factoryVal = dfac.getDomain();
+            scope.providerVal = dpro;
+            scope.decoratorVal = dser.getDomain();
+        }]);
+
+    </script>
+</html>

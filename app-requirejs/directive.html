@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>AngularJS自定义指令测试</title>
+        <link rel="stylesheet" href="styles/app.css">
+    </head>
+    <body ng-app="myApp">
+        <div class="container" ng-controller="directiveCtrl">
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="text-center">
+                        <h1>{{title}}</h1>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span4">
+                            <p class="text-success lead">scope=true</p>
+                            <!-- 自定义属性指令trueScope -->
+                            <span true-scope>
+                            <div>ng-transclude测试</div>
+                            </span>
+                        </div>
+                        <div class="span4">
+                            <p class="text-success lead">scope=false</p>
+                            <!-- 自定义标签指令defaultScope -->
+                           <div true-scope> 
+                                <default-scope />
+                            </div>
+                        </div>
+                        <div class="span4">
+                            <p class="text-success lead">scope={}</p>
+                            <!-- 自定义独立作用域指令isloateScope -->
+                            <isloate-scope list="customer" title="{{title}}sfdsfd" ctrl="getCtrl()">
+                            </isloate-scope>
+                        </div>
+                    </div>
+                </div>
+                <div class="span12">
+                    <div class="text-center">
+                        <h1>指令中compile和link的区别</h1>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span6">
+                            <dd ng-repeat="i in [1,2,3]">
+                            <!-- 自定义注释指令defaultScope -->
+                            <!-- directive:compile -->
+                            </dd>
+                        </div>
+                        <div class="span6">
+                            <dd ng-repeat="i in [1,2,3]">
+                            <!-- 自定义样式名指令defaultScope -->
+                            <p class="link" />
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="vendor/angular/angular.js"></script>
+    <script>
+        var myApp = angular.module('myApp',[]);
+        myApp.controller('directiveCtrl', ['$scope','$window', function($scope,$window){
+            $scope.title = '自定义指令测试';
+            $scope.ctrl = "parent";
+            $scope.customer = {name:'angular',type:'broswer'};
+            $scope.getCtrl = function(){
+                $window.alert("ctrl:"+$scope.ctrl);
+            }
+        }]);
+        myApp.directive('trueScope', ['$window', function($window){
+            // Runs during compile
+            return {
+                restrict: 'A',
+                template: '<div><p class="text-warning lead">title:{{title}}</p><p ng-transclude></p><p></p></div>',
+                replace: false,
+                transclude: true,
+                scope:true, //独立的scope,可以访问和覆盖父controller的值，但是不可以修改
+                controller: function($scope){
+                    this.alert = function(){
+                        $window.alert('我是trueScope里的click');
+                    };
+                },
+                link: function($scope, iElm, iAttrs, controller) {
+                    $scope.title = "我是scope=true里面的值";
+                }
+            };
+        }]).directive('defaultScope', ['$http', function($http){
+            // Runs during compile
+            return {
+                require: ['?^trueScope','?ngModel'],
+                restrict: 'E',
+                template: '<div ng-click="click()"><p class="text-warning lead">title:{{title}}</p><p>ctrl:{{ctrl}}</p></div>',
+                replace: false,
+                link: function($scope, iElm, iAttrs, controller) {
+                    $scope.ctrl = "这里修改了ctrl的值";
+                    if(controller[0])
+                        $scope.click = controller[0].alert;
+                }
+            };k
+        }]).
+        directive('isloateScope', ['$window', function($window){
+            return {
+                scope: {
+                    customerInfo:'=list',//=只能是字符串
+                    title:'@title',//@可以是纯字符串，可以用表达式
+                    ctrl:'&ctrl'//关联父$scope的方法
+                },
+                restrict: 'EA',
+                controller: function($scope){
+                    $scope.isloateVal = "自己作用域的值";
+                    $scope.click = function(){
+                        $window.alert('我是isloateScope里的click');
+                    };
+                },
+                templateUrl: 'views/directives/scopedir.html',
+                replace: true,
+                link: function($scope, iElm, iAttrs, controller) {
+                }
+            };
+        }]).directive('compile', ['$window', function($window){
+            return {
+                restrict : 'M',
+                template: '<p class="lead">compile</p>',
+                replace: true,
+                // transclude: true,
+                compile: function(tElement, tAttrs){
+                    console.log('compile');
+                },
+            };
+        }]).directive('link', ['$window', function($window){
+            return {
+                restrict : 'C',
+                template: '<p class="lead">link</p>',
+                replace: true,
+                link: function($scope, $element, $attr) {
+                    // link每个指令的实例执行一次
+                    console.log('link');
+                }
+            };
+        }]);
+    </script>
+</html>

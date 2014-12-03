@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>AngularJS 启动顺序</title>
+        <link rel="stylesheet" href="styles/app.css">
+    </head>
+    <body ng-controller="initController">
+        <div class="container">
+            <h1> angularjs 初始化<br/>
+            hello,<small>{{name | testFilter}}</small></h1>
+        </div>
+        <div test-directive/></div>
+    </body>
+    <script src="vendor/angular/angular.js"></script>
+    <script type="text/javascript">
+        var myApp = angular.module('myApp', []);
+        //controller
+        function initController($scope,testService){
+            $scope.name = "AngularJS";
+            console.log('step1-controller');
+        }
+        //service
+        myApp.factory('testService', function(){
+            console.log('step2-service');
+        });
+        //filter
+        myApp.filter('testFilter',function(){
+            console.log('step3-filter');
+            var filterfun = function(str) {
+                return 'filter-' + str;
+            };
+            return filterfun;
+        });
+        //directive
+        myApp.directive('testDirective',['testService', function(testService){
+            // Runs during compile
+            return {
+                restrict:'EA',
+                template:'<p class="text-error lead">我是指令</p>',
+                replace:false,
+                priority:500,
+                compile: function(tElement, tAttrs){
+                    console.log('step4-directive');
+                },
+                link: function($scope, iElm, iAttrs, controller) {
+                    console.log('step4-directive');
+                }
+            };
+        }]);
+        //config
+        myApp.config(['$httpProvider',function($window) {
+            console.log('step5-config');
+        }]);
+        //run
+        myApp.run(function(){
+            console.log('step6-run');
+        });
+        //boostrap
+        angular.element(document).ready(function($window) {
+            console.log('step7-bootstrap');
+            angular.bootstrap(document, ['myApp']);
+        });
+    </script>
+</html>

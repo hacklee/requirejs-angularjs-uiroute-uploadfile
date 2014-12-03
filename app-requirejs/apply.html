@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>AngularJS apply之应用</title>
+        <link rel="stylesheet" href="styles/app.css">
+    </head>
+    <body ng-app="myApp">
+        <div class="container" ng-controller="applyCtrl">
+            <div class="row">
+                <input class="text" ng-model="pt1"/>
+                <h2>自带指令，自动加入Watch</h2>
+                pt1：<strong class="text-warning">{{pt1}}</strong>
+            </div>
+            <div class="row">
+                <h2>第三方，手动加入angular运行环境</h2>
+                pt2：<strong class="text-error">{{pt2}}</strong>
+            </div>
+        </div>
+    </body>
+    <script src="vendor/angular/angular.js"></script>
+    <script type="text/javascript">
+            var myApp = angular.module('myApp',[]);
+            myApp.controller('applyCtrl', ['$scope','$timeout', function($scope,$timeout){
+                $scope.pt1 = "我是pt1";
+                $scope.pt2 = "我是pt2";
+                $scope.setPt1 = function(){
+                    $timeout(function(){
+                        $scope.pt1 = "2秒后修改了pt1";
+                    },2000);
+                };
+                $scope.setPt2 = function(){
+                    setTimeout(function(){
+                        //$scope.pt2 = "2秒后修改了pt2";
+                        //$scope.$apply();
+                        //如果此处不加apply，pt2将不会修改
+                        $scope.$apply(function(){
+                             $scope.pt2 = "2秒后修改了pt2";
+                        });
+                    },2000);
+                };
+                $scope.setPt1();
+                $scope.setPt2();
+            }]);
+    </script>
+</html>

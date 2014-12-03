@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>AngularJS 文件上传</title>
+        <link rel="stylesheet" href="styles/app.css">
+    </head>
+    <body ng-app="myApp">
+        <div class="container">
+            <div ng-controller = "fileUploadCtrl">
+                <input type="file" file-model="myFile" />
+                <button ng-click="uploadFile()">上传</button>
+            </div>
+        </div>
+    </body>
+    <script src="vendor/angular/angular.js"></script>
+    <script type="text/javascript">
+        var myApp = angular.module('myApp', []);
+        myApp.directive('fileModel', ['$parse', function ($parse) {
+            return {
+                restrict: 'A',
+                link: function(scope, element, attrs) {
+                    //解析"my-attr属性值到一个函数中"（getter）
+                    var model = $parse(attrs.fileModel);
+                    console.log(model(scope));
+                     //'model.assign'也是一个函数，它用来更新表达式的值 （setter）
+                    var modelSetter = model.assign;
+                    
+                    element.bind('change', function(){
+                        scope.$apply(function(){
+                            //更新myFile的值为上传文件的属性
+                            modelSetter(scope, element[0].files[0]);
+                        });
+                    });
+                }
+            };
+        }]);
+        myApp.service('fileUpload', ['$http', function ($http) {
+            this.uploadFileToUrl = function(file, uploadUrl){
+                //模拟form表单提交
+                var fd = new FormData();
+                fd.append('file', file);
+                $http.post(uploadUrl, fd, {
+                    transformRequest: angular.identity,
+                    headers: {'Content-Type': undefined}
+                })
+                .success(function(){
+                    console.log('上传文件成功');
+                })
+                .error(function(){
+                    console.log('上传文件失败');
+                });
+            }
+        }]);
+        myApp.controller('fileUploadCtrl', ['$scope', 'fileUpload', function($scope, fileUpload){
+            //$scope.myFile = "testFile";
+            $scope.uploadFile = function(){
+                var file = $scope.myFile;
+                var uploadUrl = "/upload.php";
+                fileUpload.uploadFileToUrl(file, uploadUrl);
+            };
+        }]);
+    </script>
+</html>

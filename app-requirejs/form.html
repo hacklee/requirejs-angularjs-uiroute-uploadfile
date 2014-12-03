@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS 表单验证</title>
+    <link rel="stylesheet" href="styles/app.css">
+</head>
+<body ng-app="myApp">
+    <div class="login-page" ng-controller="formCtrl">
+    <div class="login-wrapper">
+        <div class="login-box">
+            <h3>AngularJs Demo登录</h3>
+            <form novalidate ng-submit="login()" name="loginForm" >
+                <input type="text" class="span4" placeholder="用户名" name="user" ng-model='user' required ng-pattern="/^[a-zA-Z\d]{5,11}$/">
+                <span ng-show="loginForm.user.$invalid">
+                    用户名必须是5-11位字母数字
+                </span>
+                <input type="password" class="span4" placeholder="密码" name="pwd" ng-model='pwd' required ng-minlength=6 ng-maxlength=10>
+                <span ng-show="loginForm.pwd.$error.minlength">
+                    密码不能小于6位
+                </span>
+                <span ng-show="loginForm.pwd.$error.maxlength">
+                    密码不能长于10位
+                </span>
+                <input type="text" class="span4" placeholder="口令" name="token" ng-model='token' required tonken>
+                <span ng-show="loginForm.token.$error.token">
+                    此处必须填写token
+                </span>
+                <input type="submitk" class="btn btn-block btn-primary btn-large" value="登录" ng-disabled="loginForm.$invalid">
+            </form>
+        </div>
+    </div>
+</div>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="js/directives/demo.js"></script>
+    <script type="text/javascript">
+        angular.module('myApp',['demo.directives']).
+                controller('formCtrl', ['$rootScope','$scope','$window', '$location',function($rootScope,$scope,$window,$location){
+                        $scope.login = function(){
+                            $window.alert("user:"+$scope.user+"\r\npwd:"+$scope.pwd+"\r\ntoken:"+$scope.token);
+                    };
+        }]);
+    </script>
+<style>
+    span{
+        color: red;
+        font-size: 15px;
+    }
+</style>
+</body>
+</html>

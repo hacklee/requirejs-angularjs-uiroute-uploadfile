@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS - DI</title>
+    <link rel="stylesheet" href="styles/app.css">
+</head>
+<body ng-app="myApp">
+    <div class="container" ng-controller="autoCtrl">
+        <p class="text-info lead">{{name}}</p>
+        <div ng-controller="injectCtrl">
+            <p class="text-success lead">{{name}}<p>
+            <p class="muted lead">{{ctrl}}</p>
+        </div>
+    </div>
+    <div class="container" ng-controller="inlineCtrl">
+            <p class="text-error lead">{{name}}<p>
+    </div>
+</body>
+<script src="vendor/angular/angular.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp',[]);
+    //#######autoCtrl
+    function autoCtrl($scope){
+         $scope.name = "AngularJS-Auto-DI";
+         $scope.ctrl = "parentCtrl";
+    };
+    //#######autoCtrl
+
+
+    //#######injectCtrl
+    function inject($scopeInject,userInject){
+        $scopeInject.name = userInject.name;
+    }
+    myApp.value('user', {
+        name : 'angular'
+    });
+    inject['$inject'] = ['$scope','user'];
+    myApp.controller('injectCtrl',inject);
+    //#######injectCtrl
+
+    //#######inlineCtrl
+    myApp.controller('inlineCtrl', ['$scope', function(scope){
+        scope.name = "Angular-Inline-DI";
+    }]);
+    //#######inlineCtrl
+</script>
+</html>

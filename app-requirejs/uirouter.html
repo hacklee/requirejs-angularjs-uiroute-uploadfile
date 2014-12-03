@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>AngularJS 第三方路由插件</title>
+        <link rel="stylesheet" href="styles/app.css">
+    </head>
+    <body ng-app="myApp">
+        <div class="container" ng-controller="uiRouter">
+            <div class="navbar navbar-inner">
+                <h2>Ui.Router 使用</h2>
+            </div>
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span2">
+                        <div class="tabbable tabs-left">
+                            <ul class="nav nav-tabs">
+                                <li><a ui-sref="main">首页</a></li>
+                                <li><a href="#/user">user</a></li>
+                                <li><a ui-sref="user.list">user-list</a></li>
+                                <li><a ui-sref="user.info">user-info</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="span10">
+                        <!--Body content-->
+                        <div ui-view="content">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar navbar-inner">
+                <div ui-view="footer"></div>
+            </div>
+        </div>
+    </body>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular-uirouter/angular-ui-router.js"></script>
+    <script type="text/javascript">
+        var myApp = angular.module('myApp', ['ui.router']);
+        myApp.controller('uiRouter', ['$scope',function($scope) {
+
+        }]);
+        myApp.config(function($stateProvider) {
+            $stateProvider.state('user', {
+                url: '/user',
+                views:{
+                    content:{
+                        template:'<p><strong>{{ctrl}}</strong></p><p class="lead" ui-view></p>',
+                        controller:function($scope){
+                            $scope.ctrl = "USER";
+                        }
+                    },
+                    footer:{
+                        template:'<h2>footer</h2>'
+                    }
+                },
+            }).state('user.list', {
+                url: '/list',
+                template: '<p class="text-error">user-list</p>',
+            }).state('user.info', {
+                url: '/list',
+                parent:'user'
+            }).state('main', {
+                url: '',
+                views:{
+                    content: {
+                        template: '<h2>hello,{{name}}</h2>',
+                        controller: function($scope) {
+                            $scope.name = "Ui.Router";
+                        }
+                    },
+                    footer:{
+                        template:'<h2>footer</h2>'
+                    }
+                }
+            });
+        });
+    </script>
+</html>
